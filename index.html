@@ -840,11 +840,60 @@ async function loadDataset() {
   
   datasetNameDisplay.textContent = datasetName;
   
-  try {
-    // Use the consolidated dataset path
-    const response = await fetch(`/datasets/${selectedDataset}.jsonl`);
-    if (!response.ok) {
-      throw new Error(`Failed to load dataset: ${response.statusText}`);
+try {
+    const possiblePaths = [
+        // Direct path from root
+        `datasets/critical_apollo_deception_consolidated/${selectedDataset}.jsonl`,
+        // With repository name
+        `/benchmarking-deception-probes/datasets/critical_apollo_deception_consolidated/${selectedDataset}.jsonl`,
+        // Without leading slash
+        `benchmarking-deception-probes/datasets/critical_apollo_deception_consolidated/${selectedDataset}.jsonl`,
+        // Just datasets
+        `/datasets/${selectedDataset}.jsonl`,
+        // Relative path
+        `./datasets/critical_apollo_deception_consolidated/${selectedDataset}.jsonl`,
+        // One directory up
+        `../datasets/critical_apollo_deception_consolidated/${selectedDataset}.jsonl`,
+        // Absolute from root
+        `/datasets/critical_apollo_deception_consolidated/${selectedDataset}.jsonl`,
+        // Simple direct
+        `datasets/${selectedDataset}.jsonl`
+    ];
+
+    console.log('Current URL:', window.location.href);
+    let succeeded = false;
+
+    for (const path of possiblePaths) {
+        try {
+            console.log('Attempting path:', path);
+            const response = await fetch(path);
+            if (response.ok) {
+                console.log('Success with path:', path);
+                const text = await response.text();
+                console.log('First 100 chars:', text.substring(0, 100));
+                succeeded = true;
+                // Use this data
+                samples = text.trim().split('\n')
+                    .map(line => {
+                        try {
+                            return JSON.parse(line);
+                        } catch (e) {
+                            console.error('Failed to parse line:', line);
+                            return null;
+                        }
+                    })
+                    .filter(sample => sample !== null);
+                break;
+            } else {
+                console.log('Failed with path:', path, 'Status:', response.status);
+            }
+        } catch (error) {
+            console.log('Error with path:', path, 'Error:', error);
+        }
+    }
+
+    if (!succeeded) {
+        throw new Error("Could not load dataset from any attempted path");
     }
     
     const text = await response.text();
