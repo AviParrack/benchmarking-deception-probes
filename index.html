@@ -850,7 +850,12 @@ async function loadDataset() {
     const text = await response.text();
     // Split by newlines and parse each line as JSON
     samples = text.trim().split('\n')
-      .map(line => {
+      .map((line, index) => {
+        // Remove BOM from the first line if present
+        if (index === 0) {
+          line = line.replace(/^\uFEFF/, '');
+        }
+        if (line.trim() === '') return null; // skip empty lines
         try {
           return JSON.parse(line);
         } catch (e) {
