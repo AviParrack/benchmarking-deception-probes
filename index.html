@@ -1290,42 +1290,6 @@ function updateScoreHistogram(scores) {
     
     histogramContainer.appendChild(bar);
   }
-  
-  // Add average score indicator
-  if (scores.length > 0) {
-    // Calculate position as percentage of container width
-    const avgScorePosition = ((avgScore - minScore) / (numBins * binSize)) * 100;
-    
-    // Create the indicator element
-    const avgIndicator = document.createElement('div');
-    avgIndicator.className = 'avg-score-indicator';
-    avgIndicator.style.left = `${avgScorePosition}%`;
-    avgIndicator.title = `Average Score: ${avgScore.toFixed(2)}`;
-    
-    histogramContainer.appendChild(avgIndicator);
-  }
-  
-  // Create labels for the histogram (show fewer labels for better readability)
-  const labelStep = 2; // Show a label every 2 bins
-  for (let i = 0; i < numBins; i += labelStep) {
-    const labelValue = minScore + (i * binSize);
-    if (i === 0 || i === numBins - labelStep) {
-      // Always show the first and last label
-      const label = document.createElement('div');
-      label.textContent = labelValue;
-      histogramLabels.appendChild(label);
-    } else if (labelValue === 0) {
-      // Always show the zero label
-      const label = document.createElement('div');
-      label.textContent = labelValue;
-      histogramLabels.appendChild(label);
-    } else if (i % 4 === 0) {
-      // Show fewer labels for cleaner display
-      const label = document.createElement('div');
-      label.textContent = labelValue;
-      histogramLabels.appendChild(label);
-    }
-  }
 }
 
 function updateSuspiciousRegions(tokens, probeScores, tokenRoles, isHeader, isContent, isDateToken, isPublic) {
