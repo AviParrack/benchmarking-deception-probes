@@ -842,7 +842,7 @@ async function loadDataset() {
   
  try {
     // Add debug logging
-    const path = `/datasets/critical_apollo_deception_consolidated/${selectedDataset}.jsonl`;
+    const path = `datasets/critical_apollo_deception_consolidated/${selectedDataset}.jsonl`;
     console.log('Attempting to fetch from:', path);
     const response = await fetch(path);
     if (!response.ok) {
