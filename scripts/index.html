@@ -842,7 +842,7 @@ async function loadDataset() {
   
   try {
     // Use the consolidated dataset path
-    const response = await fetch(`../datasets/apollo_deception_consolidated/${selectedDataset}.jsonl`);
+    const response = await fetch(`datasets/apollo_deception_consolidated/${selectedDataset}.jsonl`);
     if (!response.ok) {
       throw new Error(`Failed to load dataset: ${response.statusText}`);
     }
