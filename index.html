@@ -822,23 +822,56 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Functions
 async function loadDataset() {
-  // Get selected dataset, default to AI Liar if none selected
-  const selectedDataset = datasetSelect.value || 'ai_liar__original_without_answers';
-  
-  tokensDisplay.innerHTML = '<div class="loading">Loading dataset...</div>';
-  currentDataset = selectedDataset;
-  
-  // Reset classified samples when changing datasets
-  classifiedSamples.clear();
-  
-  // Format dataset name for display
-  const datasetName = selectedDataset
-    .replace(/__/g, ' - ')
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-  
-  datasetNameDisplay.textContent = datasetName;
+    // Get selected dataset, default to AI Liar if none selected
+    const selectedDataset = datasetSelect.value || 'ai_liar__original_without_answers';
+    
+    tokensDisplay.innerHTML = '<div class="loading">Loading dataset...</div>';
+    currentDataset = selectedDataset;
+    
+    // Format dataset name for display
+    const datasetName = selectedDataset
+        .replace(/__/g, ' - ')
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    
+    datasetNameDisplay.textContent = datasetName;
+    
+    try {
+        const path = `datasets/critical_apollo_deception_consolidated/${selectedDataset}.jsonl`;
+        const response = await fetch(path);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to load dataset: ${response.statusText}`);
+        }
+        
+        const text = await response.text();
+        
+        // Split by newlines and parse each line as JSON
+        samples = text.trim().split('\n')
+            .map(line => {
+                try {
+                    return JSON.parse(line);
+                } catch (e) {
+                    console.error('Failed to parse line:', line);
+                    return null;
+                }
+            })
+            .filter(sample => sample !== null);
+        
+        if (samples.length === 0) {
+            throw new Error("No valid samples found in the dataset");
+        }
+        
+        currentSampleIndex = 0;
+        totalSamplesSpan.textContent = samples.length;
+        displaySample(currentSampleIndex);
+        
+    } catch (error) {
+        console.error('Error loading dataset:', error);
+        tokensDisplay.innerHTML = `<div class="error">Error loading dataset: ${error.message}</div>`;
+    }
+}
   
 try {
     const possiblePaths = [
