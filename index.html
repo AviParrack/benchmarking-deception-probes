@@ -840,14 +840,18 @@ async function loadDataset() {
   
   datasetNameDisplay.textContent = datasetName;
   
-  try {
-    // Use the consolidated dataset path
-    const response = await fetch(`/benchmarking-deception-probes/datasets/apollo_deception_consolidated/${selectedDataset}.jsonl`);
+ try {
+    // Add debug logging
+    const path = `/benchmarking-deception-probes/datasets/apollo_deception_consolidated/${selectedDataset}.jsonl`;
+    console.log('Attempting to fetch from:', path);
+    const response = await fetch(path);
     if (!response.ok) {
-      throw new Error(`Failed to load dataset: ${response.statusText}`);
+        console.error('Fetch failed with status:', response.status);
+        throw new Error(`Failed to load dataset: ${response.statusText}`);
     }
     
     const text = await response.text();
+    console.log('First 100 chars of response:', text.substring(0, 100));
     // Split by newlines and parse each line as JSON
     samples = text.trim().split('\n')
       .map(line => {
